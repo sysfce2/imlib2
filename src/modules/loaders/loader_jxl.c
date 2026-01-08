@@ -289,8 +289,8 @@ _save(ImlibImage *im)
     }
     else
     {
-        distance = 15.f * (1.f - .01 * imsp.quality);   // 0 - 100 -> 15 - 0
-        D("Quality=%d: Distance=%.1f\n", imsp.quality, distance);
+        distance = 15.f * (1.f - .01f * imsp.quality);  // 0 - 100 -> 15 - 0
+        D("Quality=%d: Distance=%.1f\n", imsp.quality, (double)distance);
         JxlEncoderSetFrameLossless(opts, JXL_FALSE);
         JxlEncoderSetFrameDistance(opts, distance);
     }

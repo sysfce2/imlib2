@@ -90,7 +90,7 @@ main(int argc, char **argv)
     const char     *fin, *fout;
     int             wo, ho;
     unsigned int    bgcol;
-    char           *dot;
+    const char     *dot;
     Imlib_Image     im;
     int             cnt, save_cnt;
     bool            show_time;

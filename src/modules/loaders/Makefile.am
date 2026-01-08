@@ -78,7 +78,7 @@ if ENABLE_RTLD_LOCAL_SUPPORT
 IMLIB2_LIBS = $(top_builddir)/src/lib/libImlib2.la
 endif
 
-LIBTOOLFLAGS = --tag=disable-static
+AM_LIBTOOLFLAGS = --tag=disable-static
 
 ani_la_SOURCES       = loader_ani.c
 ani_la_LDFLAGS       = -module -avoid-version

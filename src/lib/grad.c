@@ -184,9 +184,9 @@ __imlib_MapHsvaRange(ImlibRange *rg, int len)
                 bb = p->next->blue;
                 __imlib_rgb_to_hsv(r, g, b, &h1, &s1, &v1);
                 __imlib_rgb_to_hsv(rr, gg, bb, &h2, &s2, &v2);
-                h = ((h1 * k2) + (h2 * k1)) / 65536.0;
-                s = ((s1 * k2) + (s2 * k1)) / 65536.0;
-                v = ((v1 * k2) + (v2 * k1)) / 65536.0;
+                h = ((h1 * k2) + (h2 * k1)) / 65536.f;
+                s = ((s1 * k2) + (s2 * k1)) / 65536.f;
+                v = ((v1 * k2) + (v2 * k1)) / 65536.f;
                 __imlib_hsv_to_rgb(h, s, v, &r, &g, &b);
                 a = (unsigned long int)((p->alpha * k2) +
                                         (p->next->alpha * k1)) >> 16;
@@ -223,9 +223,9 @@ __imlib_MapHsvaRange(ImlibRange *rg, int len)
         aa = ((kk) >> 24) & 0xff;
         __imlib_rgb_to_hsv(r, g, b, &h1, &s1, &v1);
         __imlib_rgb_to_hsv(rr, gg, bb, &h2, &s2, &v2);
-        h = ((h1 * k2) + (h2 * k1)) / 65536.0;
-        s = ((s1 * k2) + (s2 * k1)) / 65536.0;
-        v = ((v1 * k2) + (v2 * k1)) / 65536.0;
+        h = ((h1 * k2) + (h2 * k1)) / 65536.f;
+        s = ((s1 * k2) + (s2 * k1)) / 65536.f;
+        v = ((v1 * k2) + (v2 * k1)) / 65536.f;
         __imlib_hsv_to_rgb(h, s, v, &r, &g, &b);
         a = (unsigned long int)((a * k2) + (aa * k1)) >> 16;
         map[i] = PIXEL_ARGB(a, r, g, b);
@@ -243,9 +243,10 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
               int clx, int cly, int clw, int clh, ImlibRangeMapFunc *rmf)
 {
     uint32_t       *map, *p;
-    int            *hlut, *vlut, len;
+    int            *hlut, *vlut;
+    uint64_t        len, ll;
     int             xx, yy, xoff, yoff, ww, hh, jump;
-    int             tmp, i, divw, divh;
+    int             tmp, i, divw, divh, maxlut;
     uint8_t         r, g, b, a;
 
     xoff = yoff = 0;
@@ -316,25 +317,30 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
         divw = 1;
     if (divh < 1)
         divh = 1;
+
     if (xx < 0)
     {
         for (i = 0; i < ww; i++)
             hlut[i] = (-xx * (ww - 1 - i) * len) / divw;
+        maxlut = hlut[0];
     }
     else
     {
         for (i = 0; i < ww; i++)
             hlut[i] = (xx * i * len) / divw;
+        maxlut = hlut[ww - 1];
     }
     if (yy < 0)
     {
         for (i = 0; i < hh; i++)
             vlut[i] = (-yy * (hh - 1 - i) * len) / divh;
+        maxlut += vlut[0];
     }
     else
     {
         for (i = 0; i < hh; i++)
             vlut[i] = (yy * i * len) / divh;
+        maxlut += vlut[hh - 1];
     }
     jump = im->w - w;
 
@@ -349,11 +355,8 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
             {
                 for (xx = 0; xx < w; xx++)
                 {
-                    i = vlut[yoff + yy] + hlut[xoff + xx];
-                    if (i < 0)
-                        i = 0;
-                    else if (i >= len)
-                        i = len - 1;
+                    ll = len * (vlut[yoff + yy] + hlut[xoff + xx]);
+                    i = (ll > 0) ? (ll - 1) / maxlut : 0;
                     ARGB_TO_R_G_B_A(map[i], r, g, b, a);
                     BLEND_DST_ALPHA(r, g, b, a, p);
                     p++;
@@ -367,11 +370,8 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
             {
                 for (xx = 0; xx < w; xx++)
                 {
-                    i = vlut[yoff + yy] + hlut[xoff + xx];
-                    if (i < 0)
-                        i = 0;
-                    else if (i >= len)
-                        i = len - 1;
+                    ll = len * (vlut[yoff + yy] + hlut[xoff + xx]);
+                    i = (ll > 0) ? (ll - 1) / maxlut : 0;
                     ARGB_TO_R_G_B_A(map[i], r, g, b, a);
                     BLEND(r, g, b, a, p);
                     p++;
@@ -385,11 +385,8 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
         {
             for (xx = 0; xx < w; xx++)
             {
-                i = vlut[yoff + yy] + hlut[xoff + xx];
-                if (i < 0)
-                    i = 0;
-                else if (i >= len)
-                    i = len - 1;
+                ll = len * (vlut[yoff + yy] + hlut[xoff + xx]);
+                i = (ll > 0) ? (ll - 1) / maxlut : 0;
                 ARGB_TO_R_G_B_A(map[i], r, g, b, a);
                 BLEND_SUB(r, g, b, a, p);
                 p++;
@@ -402,11 +399,8 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
         {
             for (xx = 0; xx < w; xx++)
             {
-                i = vlut[yoff + yy] + hlut[xoff + xx];
-                if (i < 0)
-                    i = 0;
-                else if (i >= len)
-                    i = len - 1;
+                ll = len * (vlut[yoff + yy] + hlut[xoff + xx]);
+                i = (ll > 0) ? (ll - 1) / maxlut : 0;
                 ARGB_TO_R_G_B_A(map[i], r, g, b, a);
                 BLEND_SUB(r, g, b, a, p);
                 p++;
@@ -419,11 +413,8 @@ _DrawGradient(ImlibImage *im, int x, int y, int w, int h,
         {
             for (xx = 0; xx < w; xx++)
             {
-                i = vlut[yoff + yy] + hlut[xoff + xx];
-                if (i < 0)
-                    i = 0;
-                else if (i >= len)
-                    i = len - 1;
+                ll = len * (vlut[yoff + yy] + hlut[xoff + xx]);
+                i = (ll > 0) ? (ll - 1) / maxlut : 0;
                 ARGB_TO_R_G_B_A(map[i], r, g, b, a);
                 BLEND_RE(r, g, b, a, p);
                 p++;

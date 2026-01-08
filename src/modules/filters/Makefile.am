@@ -10,7 +10,7 @@ if ENABLE_RTLD_LOCAL_SUPPORT
 IMLIB2_LIBS = $(top_builddir)/src/lib/libImlib2.la
 endif
 
-LIBTOOLFLAGS = --tag=disable-static
+AM_LIBTOOLFLAGS = --tag=disable-static
 
 testfilter_la_SOURCES = filter_test.c
 testfilter_la_LDFLAGS = -module -avoid-version

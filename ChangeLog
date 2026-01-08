@@ -1,3 +1,30 @@
+v1.12.6 - 2026-01-03
+--------------------
+Chema Gonzalez (7):
+      Y4M loader: add support for 10-bit 4:4:4
+      Y4M loader: add support for 10-bit 4:2:2
+      Y4M loader: add example for 8-bit mono
+      Y4M loader: add support for 10-bit mono
+      Y4M loader: fix support for full-range mono
+      Y4M loader: fix support for odd dimensions
+      Y4M loader: add support for 12/14/16-bit mono
+
+Kim Woelders (14):
+      test/images: Remove intermediate generated file
+      imlib2_view: Set title
+      imlib2_view: Scale image when resizing window
+      imlib2_view: A couple of fixes to previous commit
+      test_load_2: Add new y4m test images
+      test_load_2: Add more new y4m test images
+      test_load_2: Add more new y4m test images
+      autofoo: Use AM_LIBTOOLFLAGS, not LIBTOOLFLAGS
+      gradients: Fix rendering of gradients in larger images
+      imlib2_conv: Fix constness warning
+      gradients: Better gradients with angles
+      Compile cleanly with -Wdouble-promotion
+      XPM loader: Add missing progress callback on incomplete image data
+      v1.12.6
+
 v1.12.5 - 2025-04-06
 --------------------
 Kim Woelders (8):

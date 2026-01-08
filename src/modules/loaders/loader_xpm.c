@@ -454,11 +454,17 @@ _load(ImlibImage *im, int load_data)
     if (!im->data || !cmap)
         goto quit;
 
-    for (; count < pixels; count++)
+    if (count < pixels)
     {
-        /* Fill in missing pixels
-         * (avoid working with uninitialized data in bad xpms) */
-        im->data[count] = cmap[0].pixel;
+        for (; count < pixels; count++)
+        {
+            /* Fill in missing pixels
+             * (avoid working with uninitialized data in bad xpms) */
+            im->data[count] = cmap[0].pixel;
+        }
+
+        if (im->lc)
+            __imlib_LoadProgressRows(im, last_row, im->h);
     }
 
     rc = LOAD_SUCCESS;

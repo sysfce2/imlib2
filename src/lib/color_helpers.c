@@ -16,7 +16,7 @@ __imlib_rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
     min = (((r < g) ? r : g) < b) ? ((r < g) ? r : g) : b;
     max = (((r > g) ? r : g) > b) ? ((r > g) ? r : g) : b;
 
-    *v = max / 255.0;
+    *v = max / 255.f;
     delta = (max - min);
     if (delta == 0)
     {
@@ -28,12 +28,12 @@ __imlib_rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
     if (r == max)
         *h = (g - b) / delta;
     else if (g == max)
-        *h = 2.0 + (b - r) / delta;
+        *h = 2.f + (b - r) / delta;
     else
-        *h = 4.0 + (r - g) / delta;
-    *h *= 60.0;
+        *h = 4.f + (r - g) / delta;
+    *h *= 60.f;
     if (*h < 0)
-        *h += 360.0;
+        *h += 360.f;
 }
 
 void
@@ -42,21 +42,21 @@ __imlib_hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
     float           f, vf;
     int             i, p, q, t, vv;
 
-    vf = 255.0 * v;
+    vf = 255.f * v;
     vv = (int)round(vf);
 
-    if (s == 0.0)
+    if (s == 0.f)
     {
         *r = *g = *b = vv;
         return;
     }
 
-    h /= 60.0;
+    h /= 60.f;
     i = floor(h);
     f = h - (float)i;
-    p = (int)round(vf * (1.0 - s));
-    q = (int)round(vf * (1.0 - (s * f)));
-    t = (int)round(vf * (1.0 - s * (1.0 - f)));
+    p = (int)round(vf * (1.f - s));
+    q = (int)round(vf * (1.f - (s * f)));
+    t = (int)round(vf * (1.f - s * (1.f - f)));
 
     switch (i % 6)
     {
@@ -101,9 +101,9 @@ __imlib_rgb_to_hls(int r, int g, int b, float *hue, float *lightness,
     int             f;
     float           i, j, k, max, min, d;
 
-    i = ((float)r) / 255.0;
-    j = ((float)g) / 255.0;
-    k = ((float)b) / 255.0;
+    i = ((float)r) / 255.f;
+    j = ((float)g) / 255.f;
+    k = ((float)b) / 255.f;
 
     f = 0;
     max = min = i;
@@ -123,7 +123,7 @@ __imlib_rgb_to_hls(int r, int g, int b, float *hue, float *lightness,
         min = k;
     d = max - min;
 
-    *lightness = (max + min) / 2.0;
+    *lightness = (max + min) / 2.f;
     if (d == 0)
     {
         *saturation = 0;
@@ -131,7 +131,7 @@ __imlib_rgb_to_hls(int r, int g, int b, float *hue, float *lightness,
     }
     else
     {
-        if (*lightness < 0.5)
+        if (*lightness < 0.5f)
             *saturation = d / (max + min);
         else
             *saturation = d / (2 - max - min);
@@ -147,9 +147,9 @@ __imlib_rgb_to_hls(int r, int g, int b, float *hue, float *lightness,
             *hue = 4 + (i - j) / d;
             break;
         }
-        *hue *= 60.0;
+        *hue *= 60.f;
         if (*hue < 0)
-            *hue += 360.0;
+            *hue += 360.f;
     }
 }
 
@@ -160,10 +160,10 @@ __imlib_hls_to_rgb(float hue, float lightness, float saturation, int *r, int *g,
     float           m1, m2, m21, h;
 
     if (saturation == 0)
-        *r = *g = *b = (int)(lightness * 255.0);
+        *r = *g = *b = (int)(lightness * 255.f);
     else
     {
-        if (lightness <= 0.5)
+        if (lightness <= 0.5f)
             m2 = lightness * (1 + saturation);
         else
             m2 = lightness + saturation + lightness * saturation;
@@ -175,38 +175,38 @@ __imlib_hls_to_rgb(float hue, float lightness, float saturation, int *r, int *g,
         else if (h < 0)
             h += 360;
         if (h < 60)
-            *r = (int)(255.0 * (m1 + m21 * h / 60.0));
+            *r = (int)(255.f * (m1 + m21 * h / 60.f));
         else if (h < 180)
-            *r = (int)(255.0 * m2);
+            *r = (int)(255.f * m2);
         else if (h < 240)
-            *r = (int)(255.0 * (m1 + m21 * (240.0 - h) / 60.0));
+            *r = (int)(255.f * (m1 + m21 * (240.f - h) / 60.f));
         else
-            *r = (int)(255.0 * m1);
+            *r = (int)(255.f * m1);
         h = hue;
         if (h > 360)
             h -= 360;
         else if (h < 0)
             h += 360;
         if (h < 60)
-            *g = (int)(255.0 * (m1 + m21 * h / 60.0));
+            *g = (int)(255.f * (m1 + m21 * h / 60.f));
         else if (h < 180)
-            *g = (int)(255.0 * m2);
+            *g = (int)(255.f * m2);
         else if (h < 240)
-            *g = (int)(255.0 * (m1 + m21 * (240.0 - h) / 60.0));
+            *g = (int)(255.f * (m1 + m21 * (240.f - h) / 60.f));
         else
-            *g = (int)(255.0 * m1);
+            *g = (int)(255.f * m1);
         h = hue - 120;
         if (h > 360)
             h -= 360;
         else if (h < 0)
             h += 360;
         if (h < 60)
-            *b = (int)(255.0 * (m1 + m21 * h / 60.0));
+            *b = (int)(255.f * (m1 + m21 * h / 60.f));
         else if (h < 180)
-            *b = (int)(255.0 * m2);
+            *b = (int)(255.f * m2);
         else if (h < 240)
-            *b = (int)(255.0 * (m1 + m21 * (240.0 - h) / 60.0));
+            *b = (int)(255.f * (m1 + m21 * (240.f - h) / 60.f));
         else
-            *b = (int)(255.0 * m1);
+            *b = (int)(255.f * m1);
     }
 }

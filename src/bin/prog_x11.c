@@ -44,7 +44,7 @@ prog_x11_create_window(const char *name, int w, int h)
 
     XSelectInput(disp, win, KeyPressMask |
                  ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
-                 PointerMotionMask | ExposureMask);
+                 PointerMotionMask | ExposureMask | StructureNotifyMask);
 
     XStoreName(disp, win, name);
 
@@ -53,6 +53,12 @@ prog_x11_create_window(const char *name, int w, int h)
     XSetWMProtocols(disp, win, &ATOM_WM_DELETE_WINDOW, 1);
 
     return win;
+}
+
+void
+prog_x11_set_title(Window win, const char *name)
+{
+    XStoreName(disp, win, name);
 }
 
 int
