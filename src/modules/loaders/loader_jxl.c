@@ -14,6 +14,22 @@
 
 static const char *const _formats[] = { "jxl" };
 
+#if MAX_RUNNERS > 0
+static JxlParallelRunner *
+_jxl_create_runner(void)
+{
+    JxlParallelRunner *runner;
+    unsigned int    n_runners_dflt, n_runners;
+
+    n_runners_dflt = JxlThreadParallelRunnerDefaultNumWorkerThreads();
+    n_runners = (n_runners_dflt + 1) / 2;
+    D("n_runners = %d/%d\n", n_runners, n_runners_dflt);
+    runner = JxlThreadParallelRunnerCreate(NULL, n_runners);
+
+    return runner;
+}
+#endif
+
 static void
 _scanline_cb(void *opaque, size_t x, size_t y,
              size_t num_pixels, const void *pixels)
@@ -54,7 +70,6 @@ _load(ImlibImage *im, int load_data)
     ImlibImageFrame *pf;
 
 #if MAX_RUNNERS > 0
-    unsigned int    n_runners;
     JxlParallelRunner *runner = NULL;
 #endif
 
@@ -79,18 +94,14 @@ _load(ImlibImage *im, int load_data)
         goto quit;
 
 #if MAX_RUNNERS > 0
-    n_runners = JxlThreadParallelRunnerDefaultNumWorkerThreads();
-    if (n_runners > MAX_RUNNERS)
-        n_runners = MAX_RUNNERS;
-    D("n_runners = %d\n", n_runners);
-    runner = JxlThreadParallelRunnerCreate(NULL, n_runners);
-    if (!runner)
-        goto quit;
-
-    jst = JxlDecoderSetParallelRunner(dec, JxlThreadParallelRunner, runner);
-    if (jst != JXL_DEC_SUCCESS)
-        goto quit;
-#endif                          /* MAX_RUNNERS */
+    runner = _jxl_create_runner();
+    if (runner)
+    {
+        jst = JxlDecoderSetParallelRunner(dec, JxlThreadParallelRunner, runner);
+        if (jst != JXL_DEC_SUCCESS)
+            goto quit;
+    }
+#endif
 
     jst =
         JxlDecoderSubscribeEvents(dec,
@@ -238,7 +249,6 @@ _save(ImlibImage *im)
     size_t          buf_len, i, npix;
 
 #if MAX_RUNNERS > 0
-    unsigned int    n_runners;
     JxlParallelRunner *runner = NULL;
 #endif
 
@@ -249,18 +259,14 @@ _save(ImlibImage *im)
         goto quit;
 
 #if MAX_RUNNERS > 0
-    n_runners = JxlThreadParallelRunnerDefaultNumWorkerThreads();
-    if (n_runners > MAX_RUNNERS)
-        n_runners = MAX_RUNNERS;
-    D("n_runners = %d\n", n_runners);
-    runner = JxlThreadParallelRunnerCreate(NULL, n_runners);
-    if (!runner)
-        goto quit;
-
-    jst = JxlEncoderSetParallelRunner(enc, JxlThreadParallelRunner, runner);
-    if (jst != JXL_ENC_SUCCESS)
-        goto quit;
-#endif                          /* MAX_RUNNERS */
+    runner = _jxl_create_runner();
+    if (runner)
+    {
+        jst = JxlEncoderSetParallelRunner(enc, JxlThreadParallelRunner, runner);
+        if (jst != JXL_ENC_SUCCESS)
+            goto quit;
+    }
+#endif
 
     JxlEncoderInitBasicInfo(&info);
     info.xsize = im->w;

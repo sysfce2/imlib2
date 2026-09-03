@@ -72,6 +72,9 @@
 /* Enable text functions */
 #undef ENABLE_TEXT
 
+/* Enable bicubic scaling via uscaler */
+#undef ENABLE_USCALER
+
 /* Define to 1 if you have the 'clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
